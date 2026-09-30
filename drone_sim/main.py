@@ -130,6 +130,7 @@ def run_tests():
     hold = MissionSpec(kind="preset", preset="hover", duration=10.0)
 
     print("Controllers")
+    np.random.seed(1234)       # same noise draws on every run and every CI image
     for key in ("PID", "SMC", "PID+SMC", "ADRC", "GEO", "MPC"):
         sim, _ = fly(key, hold, calm, fused=False)
         d = sim.logger.get_all()
@@ -140,11 +141,13 @@ def run_tests():
     check("SMC survives raw sensor noise", not sim.metrics.is_crashed)
 
     print("Sensing")
+    np.random.seed(1234)       # same noise draws on every run and every CI image
     sim, _ = fly("ADRC", hold, windy, fused=True)
     check("Kalman filter beats raw GPS noise", sim.metrics.est_error < 0.2,
           f"position error {sim.metrics.est_error:.3f} m")
 
     print("Disturbances")
+    np.random.seed(1234)       # same noise draws on every run and every CI image
     ev = [ScheduledEvent(t=4.0, kind="rotor_fault", rotor=1, effectiveness=0.5)]
     sim, _ = fly("ADRC", hold, windy, fused=True, events=ev)
     d = sim.logger.get_all()
@@ -153,6 +156,7 @@ def run_tests():
     check("rotor fault is logged as an event", len(sim.event_log) == 1)
 
     print("Obstacle avoidance")
+    np.random.seed(1234)       # same noise draws on every run and every CI image
     obs = [BoxObstacle(cx=1.5, cy=0, cz=1.5, lx=1, ly=1.5, lz=3)]
     wps = [Waypoint(0, 0, 0.1), Waypoint(0, 0, 2), Waypoint(3, 0, 2), Waypoint(3, 3, 2)]
     for algo, must_clear in (("None", False), ("RRT*+CBF", True)):
@@ -170,6 +174,7 @@ def run_tests():
                   f"clearance {clear:.2f} m")
 
     print("Swarm")
+    np.random.seed(1234)       # same noise draws on every run and every CI image
     from drone_sim.core.safety import CBFParams, CBFSafetyFilter
     from drone_sim.core.swarm import SingleDroneSim, WaypointSpec
     starts, goals = [(-2, 0), (2, 0), (0, 2)], [(2, 0), (-2, 0), (0, -2)]

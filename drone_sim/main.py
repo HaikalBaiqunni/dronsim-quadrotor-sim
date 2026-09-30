@@ -200,7 +200,8 @@ def run_tests():
         goal_err = max(np.linalg.norm(d.state[:2] - np.array(g)) for d, g in zip(drones, goals))
         if sep:
             check("swarm separation keeps head-on drones apart and on mission",
-                  closest > 0.25 and goal_err < 0.6, f"closest {closest:.2f} m, goal error {goal_err:.2f} m")
+                  closest > 0.25 and goal_err < 0.6, f"closest {closest:.2f} m, goal error {goal_err:.2f} m (per drone "
+                  + ", ".join(f"{np.linalg.norm(d.state[:2] - np.array(g)):.2f}" for d, g in zip(drones, goals)) + ")")
         else:
             check("without separation head-on drones nearly collide (sanity check)", closest < 0.3,
                   f"closest {closest:.2f} m")

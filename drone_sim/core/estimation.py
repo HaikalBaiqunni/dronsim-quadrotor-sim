@@ -55,6 +55,9 @@ class StateEstimator:
         self.dp = dp
         self.p = params or EstimatorParams()
         self.dt = dt
+        if seed is None:
+            # derive from the global RNG so np.random.seed() makes runs reproducible
+            seed = int(np.random.randint(0, 2 ** 31 - 1))
         self._rng = np.random.default_rng(seed)
         self.reset()
 

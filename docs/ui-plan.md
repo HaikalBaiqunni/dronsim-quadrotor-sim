@@ -33,4 +33,11 @@ styling is hand-built. The plan is a web-style UI on top of the unchanged `drone
   drone with spinning rotors, a point-cloud trail, obstacles, waypoints and a setpoint marker. Checked in headless Chromium at 1240x700
   with no clipping and no console errors. The drone model is drawn 2.5x real size so it stays readable.
   `drone_sim/web/session.py` holds the UI-independent run logic (no NiceGUI import).
-* Not built yet: guided setup (measured ratings) and analysis screens. The Tkinter GUI is untouched.
+* **Guided setup** (`/setup`): Goal, Controller and Review steps. Ratings are measured by `drone_sim/web/ratings.py` via `run_comparison`:
+  a circle in calm air (tracking RMSE after a 5 s settle) and a hover in moderate wind with a 50% rotor loss at 8 s (crash or RMSE).
+  CPU is wall time relative to the fastest. Robustness stars are absolute, tracking stars are relative to the best controller
+  (the circle task is lag-dominated, so absolute limits gave everyone one star). Results are cached in `ratings_cache.json`
+  (gitignored, keyed by a hash of `core/`). Measuring takes about a minute. The experimental RL controller is shown as not rated.
+  Checked in headless Chromium at 1240x700: measure from the UI, sort by goal, pick a card, open in Studio with the controller carried over.
+* Not built yet: the analysis screen. The Tkinter GUI is untouched. Config is shared between pages through a module-level object, so the
+  app is single-user and local.

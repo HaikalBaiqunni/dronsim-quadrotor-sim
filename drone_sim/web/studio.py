@@ -17,30 +17,20 @@ from nicegui import ui  # noqa: E402
 
 from drone_sim.core.catalog import CATALOG  # noqa: E402
 from drone_sim.core.mission import PRESETS, ALGORITHMS  # noqa: E402
-from drone_sim.web.session import StudioSession, WINDS, euler_to_R  # noqa: E402
+from drone_sim.web.common import chrome, rail  # noqa: E402
+from drone_sim.web.session import SHARED, StudioSession, WINDS, euler_to_R  # noqa: E402
 
 ARM = 0.23 * 2.5      # visual scale: real size is unreadable at room-scale views
 # X-frame rotor layout: (x, y, spin direction)
 ROTORS = [(ARM * .707, -ARM * .707, 1), (ARM * .707, ARM * .707, -1),
           (-ARM * .707, ARM * .707, 1), (-ARM * .707, -ARM * .707, -1)]
 
-CSS = """
-body { background: #0d1117; }
-.q-card.dcard { background: #161b22; border: 1px solid #30363d; box-shadow: none; }
-.tl-track { position: relative; height: 26px; background: #21262d; border-radius: 6px; overflow: hidden; }
-.tl-fill { position: absolute; left: 0; top: 0; bottom: 0; background: #1f6feb55; }
-.tl-mark { position: absolute; top: 0; bottom: 0; width: 3px; background: #f85149; }
-.tele { font-variant-numeric: tabular-nums; }
-"""
-
-
 def build_page():
-    sess = StudioSession()
+    sess = StudioSession(SHARED)
     cfg = sess.cfg
     rotor_nodes, state = [], {"angle": [0.0] * 4, "static": []}
 
-    ui.add_css(CSS)
-    ui.dark_mode(True)
+    chrome("/")
 
     # ---- top bar -------------------------------------------------------
     with ui.header().classes("items-center gap-3 bg-[#161b22] px-4 py-2 border-b border-[#30363d]"):
@@ -54,11 +44,7 @@ def build_page():
 
     with ui.row().classes("w-full no-wrap gap-0").style("height: calc(100vh - 64px)"):
         # ---- left rail -------------------------------------------------
-        with ui.column().classes("items-center gap-2 py-3 px-1 bg-[#0d1117] border-r border-[#30363d]").style("width:56px"):
-            for ic, tip in (("view_in_ar", "Studio"), ("tune", "Guided setup (soon)"),
-                            ("insights", "Analysis (soon)")):
-                ui.button(icon=ic).props("flat round" + ("" if tip == "Studio" else " disable")) \
-                    .tooltip(tip)
+        rail("/")
 
         # ---- centre: viewport + timeline --------------------------------
         with ui.column().classes("grow gap-0 h-full").style("min-width:0"):
@@ -219,6 +205,8 @@ def build_page():
 def index():
     build_page()
 
+
+from drone_sim.web import setup  # noqa: E402,F401  (registers /setup)
 
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(title="DRONSIM Studio", port=int(os.environ.get("PORT", 8080)), reload=False, show=False)

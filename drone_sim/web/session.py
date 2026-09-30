@@ -64,9 +64,13 @@ class StudioConfig:
     gust_speed: float = 4.0
 
 
+# One config shared by all pages of the (single-user, local) app.
+SHARED = StudioConfig()
+
+
 class StudioSession:
-    def __init__(self):
-        self.cfg = StudioConfig()
+    def __init__(self, cfg: Optional[StudioConfig] = None):
+        self.cfg = cfg or StudioConfig()
         self.sim = None
         self.built = None
         self.spec: Optional[MissionSpec] = None

@@ -9,3 +9,4 @@ venv/
 _backup_v1.8_gui/
 *.mat
 dronsim_flight.csv
+drone_sim/web/ratings_cache.json

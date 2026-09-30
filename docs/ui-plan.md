@@ -26,3 +26,11 @@ styling is hand-built. The plan is a web-style UI on top of the unchanged `drone
 * Is `ui.scene` good enough for a drone model with spinning rotors and trails? Prototype the Studio screen first.
 * Insight-card rules (for example "controller X error jumps after the fault") still need to be defined.
 * Keep the Tkinter GUI until the new one is at parity.
+
+## Status
+
+* **Studio prototype** (`python -m drone_sim.web.studio`, needs `pip install nicegui`): answers the `ui.scene` question. It is good enough for a
+  drone with spinning rotors, a point-cloud trail, obstacles, waypoints and a setpoint marker. Checked in headless Chromium at 1240x700
+  with no clipping and no console errors. The drone model is drawn 2.5x real size so it stays readable.
+  `drone_sim/web/session.py` holds the UI-independent run logic (no NiceGUI import).
+* Not built yet: guided setup (measured ratings) and analysis screens. The Tkinter GUI is untouched.

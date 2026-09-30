@@ -23,3 +23,5 @@ jobs:
         env:
           MPLBACKEND: Agg
         run: python drone_sim/main.py --test
+      - name: Web UI analysis rules (no NiceGUI needed)
+        run: python drone_sim/web/test_analysis.py

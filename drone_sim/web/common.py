@@ -15,7 +15,7 @@ body { background: #0d1117; }
 """
 
 PAGES = (("/", "view_in_ar", "Studio"), ("/setup", "tune", "Guided setup"),
-         ("/analysis", "insights", "Analysis (soon)"))
+         ("/analysis", "insights", "Analysis"))
 
 
 def chrome(active: str):

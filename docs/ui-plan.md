@@ -39,5 +39,11 @@ styling is hand-built. The plan is a web-style UI on top of the unchanged `drone
   (the circle task is lag-dominated, so absolute limits gave everyone one star). Results are cached in `ratings_cache.json`
   (gitignored, keyed by a hash of `core/`). Measuring takes about a minute. The experimental RL controller is shown as not rated.
   Checked in headless Chromium at 1240x700: measure from the UI, sort by goal, pick a card, open in Studio with the controller carried over.
-* Not built yet: the analysis screen. The Tkinter GUI is untouched. Config is shared between pages through a module-level object, so the
+* **Analysis** (`/analysis`): fly several controllers on one scenario (trajectory, wind, turbulence, optional rotor fault and gust), then run chips,
+  error curves with event markers, leaderboard (crashed runs last), insight cards and a replay scrubber that moves one marker per run in a 3D view.
+  Insights are rules over the recorded data (`analysis.py`, thresholds are named constants): crash (time from the core's 80 deg tilt criterion),
+  error jump after a fault or gust with recovery time, steady offset in the last 5 s, tightest tracker, lowest control effort.
+  `drone_sim/web/test_analysis.py` checks the rules on synthetic runs and is part of CI. Units: tilt is in degrees (the logger stores degrees);
+  "effort" is sum of rotor speed squared over time, a power proxy and not joules. Not built: side-by-side mini viewers per run (one shared 3D view instead).
+* Not built yet: migrating off Tkinter. The Tkinter GUI is untouched. Config is shared between pages through a module-level object, so the
   app is single-user and local.

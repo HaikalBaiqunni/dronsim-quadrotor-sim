@@ -1,0 +1,25 @@
+name: selftest
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: drone_sim/requirements.txt
+      - run: pip install -r drone_sim/requirements.txt
+      - name: Self-test (headless, no GUI)
+        env:
+          MPLBACKEND: Agg
+        run: python drone_sim/main.py --test

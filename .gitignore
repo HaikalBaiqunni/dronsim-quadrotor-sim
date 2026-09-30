@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.idea/
+.vscode/
+.claude/
+# local backup of the v1.8 GUI, superseded by git history
+_backup_v1.8_gui/
+*.mat
+dronsim_flight.csv

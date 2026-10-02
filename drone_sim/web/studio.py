@@ -199,6 +199,7 @@ def build_page():
             event_col.text = "Finished — no events fired"
 
     ui.timer(0.05, tick)
+    ui.context.client.on_disconnect(sess.stop)     # do not leave a simulation thread running after the tab closes
 
 
 @ui.page("/")

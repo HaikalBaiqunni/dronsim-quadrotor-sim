@@ -20,6 +20,9 @@ pip install -r requirements.txt     # numpy, scipy, matplotlib
 python drone_sim/main.py            # GUI
 python drone_sim/main.py --batch    # compare all controllers, no GUI
 python drone_sim/main.py --test     # self-test, 16 checks
+
+pip install -r drone_sim/requirements-web.txt
+python -m drone_sim.web.studio      # web UI prototype, http://localhost:8080
 ```
 
 `main.py` also works when started from inside `drone_sim/`. Needs Python 3.10 or newer with Tkinter (included in the python.org installer).
@@ -101,6 +104,22 @@ Swarm flights use RRT* and CBF per drone; APF is single-drone only. Drones also 
 
 ---
 
+## Web UI (prototype)
+
+A browser front end built with [NiceGUI](https://nicegui.io) on top of the unchanged `core/`. The Tkinter GUI stays the reference
+until the web UI has parity. Three screens, one nav rail:
+
+| Screen | Path | What it does |
+|---|---|---|
+| **Studio** | `/` | 3D viewport (drone with spinning rotors, trail, obstacles, waypoints), collapsible cards for controller, mission, world, events, a timeline with event markers, live telemetry |
+| **Guided setup** | `/setup` | Goal, controller, review. Controller cards show **measured** ratings: robustness, tracking and CPU cost come from simulated flights (`run_comparison`), cached after the first minute-long measurement |
+| **Analysis** | `/analysis` | Fly several controllers on one scenario, toggle runs, error curves with event markers, leaderboard, rule-based insight cards, replay scrubber |
+
+How the ratings and insights are computed, their thresholds and the known gaps are in [docs/ui-plan.md](docs/ui-plan.md).
+The drone model is drawn 2.5x real size so it stays readable. The app keeps one shared config, so it is single-user and local.
+
+---
+
 ## Architecture
 
 ```
@@ -129,9 +148,16 @@ drone_sim/
 │   ├── telemetry.py              # telemetry column, timeline
 │   ├── widgets.py, theme.py      # shared widgets and styling
 │   └── drone_3d.py, obstacle_render.py
+├── web/                          # NiceGUI prototype (optional)
+│   ├── studio.py, setup.py, analysis_page.py   # the three pages
+│   ├── session.py                # run session, no UI imports
+│   ├── ratings.py                # measured controller ratings
+│   ├── analysis.py               # leaderboard + insight rules
+│   └── test_analysis.py          # synthetic checks of the rules (runs in CI)
 ├── docs/                         # screenshots
 ├── main.py
-└── requirements.txt
+├── requirements.txt
+└── requirements-web.txt
 ```
 
 The GUI only talks to `core` through `build_controller`, `build_simulation` and `run_comparison`, so scripts get the same behaviour:
@@ -187,7 +213,8 @@ Integration: RK4 at 100 Hz.
 
 `python drone_sim/main.py --test` checks hover physics, every controller in calm air, sensor-noise survival, the
 estimator, 50% rotor loss and RRT\*+CBF avoidance. `--batch` prints an RMSE table for every controller on hover and circle
-missions with moderate wind.
+missions with moderate wind. The selftest seeds the RNG per block, so results repeat between runs.
+`python drone_sim/web/test_analysis.py` checks the web analysis rules on synthetic data (no NiceGUI needed).
 
 ---
 
@@ -200,7 +227,8 @@ missions with moderate wind.
 - [ ] Reference feedforward for ADRC and geometric control
 - [ ] Fault-tolerant control after rotor loss
 - [ ] LQR, MPPI, learned residual dynamics
-- [ ] Modern web-style UI (NiceGUI + three.js): guided setup, studio view, run comparison and replay. See the mockups in [docs/ui-plan.md](docs/ui-plan.md).
+- [x] Web UI prototype (NiceGUI): studio, guided setup with measured ratings, analysis. See [docs/ui-plan.md](docs/ui-plan.md).
+- [ ] Web UI parity with the Tkinter GUI (map editor, swarm, vehicle editing, export), then retire Tkinter
 - [ ] Quaternion state in the dynamics
 - [ ] ROS2 bridge, hardware-in-the-loop
 

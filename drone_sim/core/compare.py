@@ -34,6 +34,15 @@ class CompareResult:
     min_clearance: float
     crashed: bool
     wall_time: float
+    crash_time: Optional[float] = None   # first time tilt exceeded 80 deg (the core's crash criterion)
+
+
+def _crash_time(d, crashed: bool) -> Optional[float]:
+    if not crashed:
+        return None
+    tilt = np.maximum(np.abs(d["phi"]), np.abs(d["theta"]))
+    idx = np.where(tilt > 80.0)[0]
+    return float(d["time"][idx[0]]) if len(idx) else None
 
 
 def run_comparison(spec: MissionSpec, keys: List[str],
@@ -79,7 +88,8 @@ def run_comparison(spec: MissionSpec, keys: List[str],
                 energy=float(m.total_energy), max_tilt=float(
                     max(np.abs(d["phi"]).max(), np.abs(d["theta"]).max())),
                 min_clearance=float(d["clearance"].min()) if "clearance" in d else float("inf"),
-                crashed=bool(m.is_crashed), wall_time=time.time() - t0))
+                crashed=bool(m.is_crashed), wall_time=time.time() - t0,
+                crash_time=_crash_time(d, bool(m.is_crashed))))
         if progress:
             progress(len(keys), len(keys), "")
     finally:

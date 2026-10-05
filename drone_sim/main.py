@@ -177,6 +177,13 @@ def run_tests():
     np.random.seed(1234)       # same noise draws on every run and every CI image
     from drone_sim.core.safety import CBFParams, CBFSafetyFilter
     from drone_sim.core.swarm import SingleDroneSim, WaypointSpec
+    probe = SingleDroneSim(0, [WaypointSpec(2, 0, 2.0, 0, 0)], dp, calm, "ADRC", 0.01,
+                           controller=build_controller("ADRC", dp), use_estimator=True)
+    probe._state[0:3] = (2.0, 0.0, 2.0)
+    probe.step()
+    est_err = float(np.linalg.norm(probe._estimator.pos - probe._state[0:3]))
+    check("estimator starts at the drone's true position when the state is set from outside",
+          est_err < 0.5, f"estimate off by {est_err:.2f} m after one step")
     starts, goals = [(-2, 0), (2, 0), (0, 2)], [(2, 0), (-2, 0), (0, -2)]
     for sep in (False, True):
         drones = []

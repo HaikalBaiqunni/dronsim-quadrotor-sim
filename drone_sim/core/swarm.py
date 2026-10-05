@@ -124,6 +124,7 @@ class SingleDroneSim:
         self._env = EnvironmentModel(env_params, dt)
         self._controller = controller if controller is not None else             create_controller(ctrl_name, drone_params, pid_params, smc_params)
         self._estimator = StateEstimator(drone_params, dt=dt) if use_estimator else None
+        self._estimator_synced = False       # estimator starts from the true state on the first step
         self._last_accel = np.zeros(3)
         self.setpoint_filter = None          # optional CBF safety filter
         self.separation_filter = None        # CBFSafetyFilter used for drone-drone spacing
@@ -149,6 +150,11 @@ class SingleDroneSim:
         # Disturbances
         F_dist, _, ge = self._env.get_disturbances(self._state, self._rotor_speeds)
         if self._estimator is not None:
+            if not self._estimator_synced:
+                # callers may place the drone by writing _state; without this the filter would
+                # start at the origin and the controller would fight a metres-sized phantom error
+                self._estimator.reset(self._state)
+                self._estimator_synced = True
             state_meas = self._estimator.step(self._state, self._last_accel, self.dt)
         else:
             state_meas = self._env.add_sensor_noise(self._state)
@@ -258,6 +264,7 @@ class SingleDroneSim:
         self._env.reset()
         if self._estimator is not None:
             self._estimator.reset(self._state)
+            self._estimator_synced = True
 
 
 class SwarmSimulation:
